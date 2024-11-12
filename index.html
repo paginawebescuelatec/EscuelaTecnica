@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Fútbol</title>
+  <style>
+    /* Estilos de la interfaz */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    h2 { text-align: center; }
+	
+	#player-list, #team-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .player, .team-player {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      width: 180px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+	
+	
+	
+    .player:hover { transform: scale(1.05); background-color: #f8f8f8; }
+    .team-player { background-color: #e3f2fd; cursor: default; }
+    h3 { width: 100%; text-align: center; margin-top: 20px; color: #333; font-weight: bold; }
+    button {
+      display: block; margin: 20px auto; padding: 10px 20px; font-size: 16px;
+      background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;
+    }
+    button:hover { background-color: #0056b3; }
+    .rating { font-weight: bold; color: #007bff; font-size: 1.2em; }
+    .complete-team { background: linear-gradient(to right, #00b09b, #96c93d); padding: 20px; border-radius: 10px; }
+	
+	.average-rating {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #28a745;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+	
+  </style>
+</head>
+<body>
+
+  <h2>Simulador de Fútbol - Draft de Jugadores</h2>
+
+  <div id="player-list"></div>
+
+  <h3>Equipo Seleccionado</h3>
+  <div id="team-list"></div>
+
+  <div class="average-rating" id="average-rating">Promedio del equipo: 0</div>
+
+  <button onclick="resetDraft()">Reiniciar Draft</button>
+
+  <script>
+    // Definición de jugadores en cada posición
+    const forwards = [
+      { id: 1, name: 'Lionel Messi', rating: 96 },
+      { id: 2, name: 'Cristiano Ronaldo', rating: 93 },
+      { id: 3, name: 'Kylian Mbappé', rating: 91 },
+      { id: 4, name: 'Neymar Jr.', rating: 91 },
+      { id: 5, name: 'Robert Lewandowski', rating: 92 },
+      { id: 6, name: 'Erling Haaland', rating: 90 },
+      { id: 7, name: 'Karim Benzema', rating: 91 },
+      { id: 8, name: 'Harry Kane', rating: 89 },
+      { id: 9, name: 'Romelu Lukaku', rating: 88 },
+      { id: 10, name: 'Mohamed Salah', rating: 90 },
+      { id: 11, name: 'Sadio Mané', rating: 88 },
+      { id: 12, name: 'Antoine Griezmann', rating: 87 },
+	  { id: 13, name: 'Gabriel Batistuta', rating: 93 },
+      { id: 14, name: 'Hernán Crespo', rating: 90 },
+      { id: 15, name: 'Lionel Messi', rating: 94 },
+      { id: 16, name: 'Gonzalo Higuaín', rating: 89 },
+      { id: 17, name: 'Diego Maradona', rating: 95 },
+      { id: 18, name: 'Sergio Agüero', rating: 89 },
+      { id: 19, name: 'Ángel Di María', rating: 90 },
+      { id: 20, name: 'Julio Cruz', rating: 85 },
+      { id: 21, name: 'Claudio Caniggia', rating: 88 },
+      { id: 22, name: 'Mario Kempes', rating: 91 },
+      { id: 23, name: 'Ezequiel Lavezzi', rating: 86 },
+      { id: 24, name: 'Carlos Tévez', rating: 89 },
+      { id: 25, name: 'Lautaro Martínez', rating: 87 },
+      { id: 26, name: 'Omar Sívori', rating: 92 },
+      { id: 27, name: 'Paulo Dybala', rating: 87 }
+
+    ];
+
+    const midfielders = [
+      { id: 28, name: 'Kevin De Bruyne', rating: 92 },
+      { id: 29, name: 'Luka Modrić', rating: 89 },
+      { id: 30, name: 'Toni Kroos', rating: 88 },
+      { id: 31, name: 'N\'Golo Kanté', rating: 90 },
+      { id: 32, name: 'Bruno Fernandes', rating: 89 },
+      { id: 33, name: 'Joshua Kimmich', rating: 89 },
+      { id: 34, name: 'Frenkie de Jong', rating: 87 },
+      { id: 35, name: 'Paul Pogba', rating: 86 },
+      { id: 36, name: 'Pedri', rating: 85 },
+      { id: 37, name: 'Bernardo Silva', rating: 88 },
+      { id: 38, name: 'Thiago Alcántara', rating: 87 },
+      { id: 39, name: 'Marco Verratti', rating: 86 },
+	  { id: 40, name: 'Juan Román Riquelme', rating: 93 },
+      { id: 41, name: 'Fernando Redondo', rating: 91 },
+      { id: 42, name: 'Javier Mascherano', rating: 90 },
+      { id: 43, name: 'Ángel Di María', rating: 88 },
+      { id: 44, name: 'Juan Sebastián Verón', rating: 89 },
+      { id: 45, name: 'Diego Simeone', rating: 87 },
+      { id: 46, name: 'Ricardo Bochini', rating: 92 },
+      { id: 47, name: 'Matías Almeyda', rating: 85 },
+      { id: 48, name: 'Éver Banega', rating: 85 },
+      { id: 49, name: 'Leandro Paredes', rating: 84 },
+      { id: 50, name: 'Diego Maradona', rating: 95 },
+      { id: 51, name: 'Rodrigo De Paul', rating: 87 },
+      { id: 52, name: 'Ariel Ortega', rating: 88 },
+      { id: 53, name: 'Pablo Aimar', rating: 89 },
+      { id: 54, name: 'Fernando Gago', rating: 84 }
+
+    ];
+
+    const defenders = [
+      { id: 55, name: 'Virgil van Dijk', rating: 90 },
+      { id: 56, name: 'Sergio Ramos', rating: 88 },
+      { id: 57, name: 'Kalidou Koulibaly', rating: 87 },
+      { id: 58, name: 'Raphael Varane', rating: 86 },
+      { id: 59, name: 'Marquinhos', rating: 88 },
+      { id: 60, name: 'Matthijs de Ligt', rating: 86 },
+      { id: 61, name: 'Andrew Robertson', rating: 87 },
+      { id: 62, name: 'Trent Alexander-Arnold', rating: 87 },
+      { id: 63, name: 'Jordi Alba', rating: 85 },
+      { id: 64, name: 'Achraf Hakimi', rating: 86 },
+      { id: 65, name: 'Theo Hernández', rating: 85 },
+      { id: 66, name: 'Antonio Rüdiger', rating: 86 },
+	  { id: 67, name: 'Roberto Ayala', rating: 89 },
+      { id: 68, name: 'Daniel Passarella', rating: 92 },
+      { id: 69, name: 'Walter Samuel', rating: 88 },
+      { id: 70, name: 'Javier Zanetti', rating: 91 },
+      { id: 71, name: 'Nicolás Otamendi', rating: 86 },
+      { id: 72, name: 'Gabriel Heinze', rating: 85 },
+      { id: 73, name: 'Oscar Ruggeri', rating: 90 },
+      { id: 74, name: 'Lisandro Martínez', rating: 85 },
+      { id: 75, name: 'José Luis Brown', rating: 88 },
+      { id: 76, name: 'Nicolás Tagliafico', rating: 84 },
+      { id: 77, name: 'Pablo Zabaleta', rating: 87 },
+      { id: 78, name: 'Marcos Rojo', rating: 84 },
+      { id: 79, name: 'Juan Pablo Sorín', rating: 86 },
+      { id: 80, name: 'Hugo Ibarra', rating: 85 },
+      { id: 81, name: 'Jorge Olguín', rating: 88 }
+
+    ];
+
+    const goalkeepers = [
+      { id: 82, name: 'Manuel Neuer', rating: 90 },
+      { id: 83, name: 'Alisson Becker', rating: 89 },
+      { id: 84, name: 'Jan Oblak', rating: 91 },
+      { id: 85, name: 'Thibaut Courtois', rating: 91 },
+      { id: 86, name: 'Ederson Moraes', rating: 89 },
+      { id: 87, name: 'Gianluigi Donnarumma', rating: 88 },
+      { id: 88, name: 'Keylor Navas', rating: 88 },
+      { id: 89, name: 'Marc-André ter Stegen', rating: 89 },
+      { id: 90, name: 'Hugo Lloris', rating: 87 },
+      { id: 91, name: 'Emiliano Martínez', rating: 89 },
+      { id: 92, name: 'David de Gea', rating: 86 },
+      { id: 93, name: 'Wojciech Szczęsny', rating: 85 },
+	  { id: 94, name: 'Ubaldo Fillol', rating: 92 },
+      { id: 95, name: 'Sergio Romero', rating: 85 },
+      { id: 96, name: 'Nery Pumpido', rating: 88 },
+      { id: 97, name: 'Emiliano Martínez', rating: 89 },
+      { id: 98, name: 'Amadeo Carrizo', rating: 91 },
+      { id: 99, name: 'Germán Burgos', rating: 85 },
+      { id: 100, name: 'Carlos Roa', rating: 86 },
+      { id: 101, name: 'Roberto Abbondanzieri', rating: 87 },
+      { id: 102, name: 'Juan Pablo Carrizo', rating: 84 },
+      { id: 103, name: 'Óscar Ustari', rating: 84 },
+      { id: 104, name: 'Hugo Gatti', rating: 90 },
+      { id: 105, name: 'Agustín Marchesín', rating: 85 },
+      { id: 106, name: 'Sebastián Saja', rating: 84 },
+      { id: 107, name: 'Mariano Andújar', rating: 84 },
+      { id: 108, name: 'Ángel Comizzo', rating: 83 }
+    ];
+
+
+    // Estado inicial del equipo
+    let selectedTeam = {
+      forwards: [],
+      midfielders: [],
+      defenders: [],
+      goalkeeper: null
+    };
+
+    let currentStage = 'forwards';
+
+    // Función para obtener una lista aleatoria de jugadores
+    function getRandomPlayers(playersArray, num) {
+      let shuffled = playersArray.sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, num);
+    }
+
+    // Función para mostrar jugadores disponibles
+    function displayRandomPlayers(positionGroup, maxSelection, positionType) {
+      const playerListDiv = document.getElementById('player-list');
+      playerListDiv.innerHTML = '';
+
+      let randomPlayers = getRandomPlayers(positionGroup, 5);
+
+      randomPlayers.forEach(player => {
+        const playerDiv = document.createElement('div');
+        playerDiv.classList.add('player');
+        playerDiv.innerHTML = `${player.name} - <span class="rating">${player.rating}</span>`;
+        playerDiv.onclick = () => draftPlayer(player, maxSelection, positionType, positionGroup);
+        playerListDiv.appendChild(playerDiv);
+      });
+    }
+
+    // Función para seleccionar jugadores en el equipo
+    function draftPlayer(player, maxSelection, positionType, positionGroup) {
+      if (positionType === 'goalkeeper') {
+        selectedTeam.goalkeeper = player;
+      } else {
+        if (!selectedTeam[positionType].some(p => p.id === player.id) && selectedTeam[positionType].length < maxSelection) {
+          selectedTeam[positionType].push(player);
+        }
+      }
+
+      displayTeam();
+
+      if (positionType === 'forwards' && selectedTeam.forwards.length === maxSelection) {
+        currentStage = 'midfielders';
+        displayRandomPlayers(midfielders, 4, 'midfielders');
+      } else if (positionType === 'midfielders' && selectedTeam.midfielders.length === maxSelection) {
+        currentStage = 'defenders';
+        displayRandomPlayers(defenders, 3, 'defenders');
+      } else if (positionType === 'defenders' && selectedTeam.defenders.length === maxSelection) {
+        currentStage = 'goalkeeper';
+        displayRandomPlayers(goalkeepers, 1, 'goalkeeper');
+      } else {
+        updatePlayerList(positionGroup, maxSelection, positionType);
+      }
+	  
+	  calculateAverageRating();
+
+    }
+
+    // Actualiza la lista de jugadores en una posición
+    function updatePlayerList(positionGroup, maxSelection, positionType) {
+      const remainingPlayers = positionGroup.filter(p => !selectedTeam[positionType].some(sel => sel.id === p.id));
+      displayRandomPlayers(remainingPlayers, maxSelection, positionType);
+    }
+
+    // Muestra el equipo seleccionado en pantalla
+    function displayTeam() {
+      const teamListDiv = document.getElementById('team-list');
+      teamListDiv.innerHTML = '';
+
+      const displayGroup = (group, title) => {
+        const titleDiv = document.createElement('h3');
+        titleDiv.innerText = title;
+        teamListDiv.appendChild(titleDiv);
+        
+        group.forEach(player => {
+          const playerDiv = document.createElement('div');
+          playerDiv.classList.add('team-player');
+          playerDiv.innerHTML = `${player.name} - <span class="rating">${player.rating}</span>`;
+          teamListDiv.appendChild(playerDiv);
+        });
+      };
+
+      displayGroup(selectedTeam.forwards, 'Delanteros');
+      displayGroup(selectedTeam.midfielders, 'Mediocampistas');
+      displayGroup(selectedTeam.defenders, 'Defensores');
+
+      if (selectedTeam.goalkeeper) {
+        const goalkeeperTitleDiv = document.createElement('h3');
+        goalkeeperTitleDiv.innerText = 'Portero';
+        teamListDiv.appendChild(goalkeeperTitleDiv);
+
+        const playerDiv = document.createElement('div');
+        playerDiv.classList.add('team-player');
+        playerDiv.innerHTML = `${selectedTeam.goalkeeper.name} - <span class="rating">${selectedTeam.goalkeeper.rating}</span>`;
+        teamListDiv.appendChild(playerDiv);
+      }
+
+      if (selectedTeam.forwards.length === 3 && selectedTeam.midfielders.length === 4 && selectedTeam.defenders.length === 3 && selectedTeam.goalkeeper !== null) {
+        teamListDiv.classList.add('complete-team');
+      } else {
+        teamListDiv.classList.remove('complete-team');
+      }
+    }
+
+    function calculateAverageRating() {
+      let totalRating = 0;
+      let playerCount = 0;
+
+      const positions = ['forwards', 'midfielders', 'defenders'];
+      positions.forEach(pos => {
+        selectedTeam[pos].forEach(player => {
+          totalRating += player.rating;
+          playerCount++;
+        });
+      });
+
+      if (selectedTeam.goalkeeper) {
+        totalRating += selectedTeam.goalkeeper.rating;
+        playerCount++;
+      }
+
+      const average = playerCount > 0 ? (totalRating / playerCount).toFixed(2) : 0;
+      document.getElementById('average-rating').innerText = `Promedio del equipo: ${average}`;
+    }
+
+
+    // Función para reiniciar el draft
+    function resetDraft() {
+      selectedTeam = {
+        forwards: [],
+        midfielders: [],
+        defenders: [],
+        goalkeeper: null
+      };
+      currentStage = 'forwards';
+      displayRandomPlayers(forwards, 3, 'forwards');
+      displayTeam();
+	  calculateAverageRating();
+    }
+
+    window.onload = () => displayRandomPlayers(forwards, 3, 'forwards');
+  </script>
+
+</body>
+</html>
+
+
+
